@@ -1,0 +1,42 @@
+<svg width="680" height="220" viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Campus Shelf banner</title>
+<desc>A flat illustration of a stack of colored books topped by an open book and a graduation cap, beside the text Campus Shelf and the tagline Textbooks for Babcock University.</desc>
+<style>
+.bgrect{fill:#FBF6EC}
+.cap{fill:#2C2420}
+.title{fill:#2C2420}
+.sub{fill:#7A6E5C}
+@media (prefers-color-scheme: dark){
+.bgrect{fill:#20180F}
+.cap{fill:#F1E9DA}
+.title{fill:#F1E9DA}
+.sub{fill:#C9BBA3}
+}
+</style>
+<rect class="bgrect" x="0" y="0" width="680" height="220"/>
+
+<g transform="translate(60,60)">
+<rect x="0" y="90" width="150" height="18" rx="3" fill="#7A2E2A"/>
+<rect x="8" y="70" width="150" height="18" rx="3" fill="#D9A441"/>
+<rect x="0" y="50" width="150" height="18" rx="3" fill="#2F6F64"/>
+<rect x="14" y="30" width="150" height="18" rx="3" fill="#7A2E2A"/>
+
+<g transform="translate(6,-6)">
+<path d="M10 12 L74 0 L138 12 L138 26 L74 14 L10 26 Z" fill="#7A2E2A"/>
+<path d="M74 0 L74 14" stroke="#5A1F1C" stroke-width="1"/>
+<circle cx="10" cy="26" r="3" fill="#D9A441"/>
+<circle cx="138" cy="26" r="3" fill="#D9A441"/>
+</g>
+</g>
+
+<g transform="translate(400,50)">
+<path d="M0 20 C30 6 60 6 78 20 L78 118 C60 104 30 104 0 118 Z" fill="#FBF6EC" stroke="#B7A98C" stroke-width="1.5"/>
+<path d="M78 20 C96 6 126 6 156 20 L156 118 C126 104 96 104 78 118 Z" fill="#FBF6EC" stroke="#B7A98C" stroke-width="1.5"/>
+<path d="M78 20 L78 118" stroke="#B7A98C" stroke-width="1.5"/>
+<path d="M12 34 L64 26 M12 50 L64 42 M12 66 L64 58" stroke="#C9BBA3" stroke-width="2" stroke-linecap="round"/>
+<path d="M92 26 L144 34 M92 42 L144 50 M92 58 L144 66" stroke="#C9BBA3" stroke-width="2" stroke-linecap="round"/>
+</g>
+
+<text class="title" x="60" y="185" font-family="Georgia, serif" font-size="34" font-weight="700">Campus Shelf</text>
+<text class="sub" x="60" y="208" font-family="Georgia, serif" font-size="14">Textbooks for Babcock University students</text>
+</svg>
