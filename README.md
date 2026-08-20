@@ -1,6 +1,6 @@
 📚 Campus-Shelf
 
-![Campus-Shelf Banner]()
+![Campus-Shelf Banner](banner/campus_shelf_banner.svg)
 
 A Digital Textbook Platform for Babcock University Students.
 
