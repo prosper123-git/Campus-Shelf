@@ -1,9 +1,9 @@
 import { books } from './books_data.js';
 import { state } from './state.js';
-import { getPurchasedCodes, addPurchasedBook } from './purchases.js';
-import { renderPurchasedBooks } from './purchased.js';
+import { getPurchasedCodes, loadPurchases } from './purchases.js';
+import { renderPurchasedBooks, loadBookPdfLinks } from './purchased.js';
 import { goToPage } from './navigation.js';
-import { payForBook } from './payments.js';
+import { payForBook, verifyPayment } from './payments.js';
 
 const catGrid = document.getElementById('catGrid');
 
@@ -36,14 +36,18 @@ export function renderBooks(list) {
         goToPage('purchased');
         return;
       }
-      payForBook(b, () => {
-        // TEMPORARY: marks the book purchased as soon as Paystack's
-        // client-side callback fires. Replace this with a call to your
-        // Cloud Function verification endpoint once it exists — see
-        // the note at the top of payments.js.
-        addPurchasedBook(b);
-        renderPurchasedBooks();
-        goToPage('purchased');
+      payForBook(b, async (reference) => {
+        try {
+          await verifyPayment(reference);
+          await loadPurchases(state.currentUser.uid);
+          await loadBookPdfLinks();
+          renderBooks(books);
+          renderPurchasedBooks();
+          goToPage('purchased');
+        } catch (err) {
+          console.error(err);
+          alert(`We couldn't confirm your payment yet. Keep this reference and contact support: ${reference}`);
+        }
       });
     });
   });

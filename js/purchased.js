@@ -1,5 +1,5 @@
 import { db } from './firebase.js';
-import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
 import { books } from './books_data.js';
 import { state } from './state.js';
 import { getPurchasedCodes } from './purchases.js';
@@ -47,18 +47,21 @@ export function renderPurchasedBooks() {
 
 // Pulls each book's pdfUrl from the `books` collection in Firestore and
 // mutates the in-memory `books` array to attach it, then re-renders.
+// Fetches the PDF link only for books this user has actually purchased.
 export async function loadBookPdfLinks() {
-  try {
-    const snapshot = await getDocs(collection(db, 'books'));
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      const match = books.find(b => b.code === data.courseCode);
-      if (match) {
-        match.pdfUrl = data.pdfUrl;
+  const codes = getPurchasedCodes();
+
+  await Promise.all(codes.map(async (code) => {
+    try {
+      const snap = await getDoc(doc(db, 'bookFiles', code));
+      if (snap.exists()) {
+        const match = books.find(b => b.code === code);
+        if (match) match.pdfUrl = snap.data().pdfUrl;
       }
-    });
-    renderPurchasedBooks();
-  } catch (error) {
-    console.error('Could not load PDF links:', error);
-  }
+    } catch (error) {
+      console.error('Could not load PDF link for', code, error);
+    }
+  }));
+
+  renderPurchasedBooks();
 }

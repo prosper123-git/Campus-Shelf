@@ -1,21 +1,25 @@
 import { auth } from './firebase.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js';
 import { state } from './state.js';
+import { books } from './books_data.js';
 import { initModal } from './modal.js';
 import { initNavigation } from './navigation.js';
-import { initCatalogue } from './catalogue.js';
+import { initCatalogue, renderBooks } from './catalogue.js';
 import { renderPurchasedBooks, loadBookPdfLinks } from './purchased.js';
+import { loadPurchases } from './purchases.js';
 
-// Keep the shared auth state in sync and re-render anything that
-// depends on it. auth.js (loaded separately) handles the login
-// button's own text/click behavior — this only needs to update
-// state.currentUser and refresh the purchased-books view.
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   state.currentUser = user;
+  try {
+    await loadPurchases(user ? user.uid : null);
+    await loadBookPdfLinks();
+  } catch (e) {
+    console.error(e);
+  }
+  renderBooks(books);
   renderPurchasedBooks();
 });
 
 initModal();
 initNavigation();
 initCatalogue();
-loadBookPdfLinks();

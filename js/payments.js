@@ -1,22 +1,9 @@
 import { state } from './state.js';
+import { auth } from './firebase.js';
 
-// TODO: replace with your own Test Public Key from the Paystack
-// dashboard (Settings -> API Keys & Webhooks). This key is safe to
-// expose in frontend code — it can only open a payment popup, it
-// can't move money or verify anything on its own.
-const PAYSTACK_PUBLIC_KEY = 'pk_test_REPLACE_ME';
+const PAYSTACK_PUBLIC_KEY = 'pk_test_be4fe089c2dd98ded14bddb1b637022dc357f685';
+const API_URL = 'https://campusshelf-api-nu.vercel.app/api/verify-payment';
 
-// Opens the Paystack popup for a single book purchase. Calls
-// onSuccess(reference) once Paystack's client-side callback fires.
-//
-// IMPORTANT: onSuccess firing here does NOT prove the payment actually
-// went through — it's only what the browser reported, and a student
-// could trigger it manually from devtools without paying anything.
-// This is test-mode wiring to get the flow working end to end. Before
-// this handles real money, add a Firebase Cloud Function that calls
-// Paystack's GET /transaction/verify/:reference with your SECRET key
-// and only then writes the purchase to Firestore — see the note in
-// main.js once that function exists.
 export function payForBook(book, onSuccess) {
   if (!state.currentUser || !state.currentUser.email) {
     alert('Please login before purchasing a book.');
@@ -33,7 +20,7 @@ export function payForBook(book, onSuccess) {
   const handler = PaystackPop.setup({
     key: PAYSTACK_PUBLIC_KEY,
     email: state.currentUser.email,
-    amount: book.price * 100, // Paystack expects kobo, not naira
+    amount: book.price * 100, // kobo
     currency: 'NGN',
     ref: reference,
     metadata: {
@@ -43,10 +30,25 @@ export function payForBook(book, onSuccess) {
     callback: function (response) {
       onSuccess(response.reference);
     },
-    onClose: function () {
-      // Student closed the popup without paying — nothing to do.
-    }
+    onClose: function () {}
   });
 
   handler.openIframe();
+}
+
+export async function verifyPayment(reference) {
+  const token = await auth.currentUser.getIdToken();
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ reference })
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || 'Verification failed');
+  }
+  return res.json();
 }

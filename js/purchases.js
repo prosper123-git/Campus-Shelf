@@ -1,21 +1,17 @@
-const PURCHASED_KEY = 'campusShelfPurchasedBooks';
+import { db } from './firebase.js';
+import { collection, getDocs } from 'https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js';
+
+let purchasedCodes = [];
 
 export function getPurchasedCodes() {
-  try {
-    return JSON.parse(localStorage.getItem(PURCHASED_KEY) || '[]');
-  } catch {
-    return [];
-  }
+  return purchasedCodes;
 }
 
-export function setPurchasedCodes(codes) {
-  localStorage.setItem(PURCHASED_KEY, JSON.stringify([...new Set(codes)]));
-}
-
-export function addPurchasedBook(book) {
-  const codes = getPurchasedCodes();
-  if (!codes.includes(book.code)) {
-    codes.push(book.code);
-    setPurchasedCodes(codes);
+export async function loadPurchases(uid) {
+  if (!uid) {
+    purchasedCodes = [];
+    return;
   }
+  const snap = await getDocs(collection(db, 'users', uid, 'purchases'));
+  purchasedCodes = snap.docs.map(d => d.id);
 }
