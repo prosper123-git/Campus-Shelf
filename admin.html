@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>CampusShelf Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-900:#0A2856; --navy-700:#123B7A; --blue-500:#2E6FD9;
+    --blue-100:#E9F1FC; --blue-50:#F5F9FE; --white:#fff;
+    --ink:#10233F; --gray-500:#5B6B85; --gray-200:#D8E1EF;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Inter',sans-serif; color:var(--ink); background:var(--blue-50); }
+  h1,h2{ font-family:'Fraunces',serif; color:var(--navy-900); margin:0; }
+  .hidden{ display:none !important; }
+  button{ font-family:inherit; cursor:pointer; }
+
+  .center-card{
+    max-width:380px; margin:12vh auto; background:var(--white); padding:32px 28px;
+    border-radius:14px; border:1px solid var(--gray-200);
+  }
+  .center-card h1{ font-size:24px; margin-bottom:6px; }
+  .center-card p{ color:var(--gray-500); font-size:14px; margin:0 0 20px; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:13px; font-weight:500; margin-bottom:6px; }
+  .field input{
+    width:100%; padding:11px 14px; border:1px solid var(--gray-200);
+    border-radius:7px; font-size:14px; font-family:inherit;
+  }
+  .btn{
+    background:var(--navy-900); color:var(--white); border:none;
+    padding:11px 20px; border-radius:8px; font-size:14px; font-weight:500;
+  }
+  .btn:hover{ background:var(--navy-700); }
+  .btn.light{ background:var(--white); color:var(--navy-900); border:1px solid var(--gray-200); }
+  .error{ color:#B3261E; font-size:13px; margin-top:10px; }
+
+  .topbar{
+    background:var(--white); border-bottom:1px solid var(--gray-200);
+    padding:14px 24px; display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:10px;
+  }
+  .topbar h1{ font-size:20px; }
+  .topbar .right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; color:var(--gray-500); }
+  main{ max-width:1180px; margin:0 auto; padding:24px; }
+
+  .stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+  .stat{ background:var(--white); border:1px solid var(--gray-200); border-radius:12px; padding:20px; }
+  .stat .label{ font-size:13px; color:var(--gray-500); }
+  .stat .value{ font-family:'Fraunces',serif; font-size:28px; color:var(--navy-900); margin-top:6px; }
+
+  .panel{ background:var(--white); border:1px solid var(--gray-200); border-radius:12px; padding:20px; margin-bottom:24px; }
+  .panel-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+  .panel h2{ font-size:18px; }
+  .panel input[type=text]{
+    padding:9px 12px; border:1px solid var(--gray-200); border-radius:7px; font-size:14px; min-width:220px;
+  }
+  .table-wrap{ overflow-x:auto; }
+  table{ width:100%; border-collapse:collapse; font-size:14px; }
+  th{ text-align:left; color:var(--gray-500); font-weight:500; font-size:12px; padding:8px 10px; border-bottom:1px solid var(--gray-200); white-space:nowrap; }
+  td{ padding:10px; border-bottom:1px solid var(--blue-50); vertical-align:middle; }
+  .bar{ height:8px; background:var(--blue-100); border-radius:99px; min-width:80px; }
+  .bar span{ display:block; height:100%; background:var(--blue-500); border-radius:99px; }
+  .empty{ color:var(--gray-500); padding:16px 10px; font-size:14px; }
+
+  @media (max-width:800px){ .stats{ grid-template-columns:repeat(2,1fr); } }
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<section id="loginView" class="center-card hidden">
+  <h1>Admin login</h1>
+  <p>Sign in with your administrator account.</p>
+  <div class="field"><label for="loginEmail">Email</label><input type="email" id="loginEmail"></div>
+  <div class="field"><label for="loginPassword">Password</label><input type="password" id="loginPassword"></div>
+  <button class="btn" id="loginBtn" style="width:100%">Log in</button>
+  <div class="error" id="loginError"></div>
+</section>
+
+<!-- Not an admin -->
+<section id="deniedView" class="center-card hidden">
+  <h1>Access denied</h1>
+  <p>This account does not have administrator access.</p>
+  <button class="btn light" id="deniedSignOut">Sign out</button>
+</section>
+
+<!-- Dashboard -->
+<section id="dashView" class="hidden">
+  <div class="topbar">
+    <h1>CampusShelf Admin</h1>
+    <div class="right">
+      <span id="status"></span>
+      <span id="adminEmail"></span>
+      <button class="btn light" id="refreshBtn">Refresh</button>
+      <button class="btn" id="signOutBtn">Sign out</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="stats" id="stats"></div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Sales by book</h2></div>
+      <div class="table-wrap"><table id="booksTable"></table></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h2>Recent payments</h2></div>
+      <div class="table-wrap"><table id="paymentsTable"></table></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>Students</h2>
+        <input type="text" id="studentSearch" placeholder="Search name, email, matric or department">
+      </div>
+      <div class="table-wrap"><table id="studentsTable"></table></div>
+    </div>
+  </main>
+</section>
+
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>
