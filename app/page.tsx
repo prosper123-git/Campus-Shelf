@@ -177,20 +177,21 @@ export default function Home() {
       setModalOpen(true);
       return;
     }
-    if (!window.PaystackPop) {
+    if (typeof window.PaystackPop !== "function") {
       setError("The payment system failed to load. Check your connection and try again.");
       return;
     }
 
     const reference = `bushelf_${book.code.replace(/\s+/g, "")}_${Date.now()}`;
-    window.PaystackPop.setup({
+    const popup = new window.PaystackPop();
+    popup.checkout({
       key: "pk_test_be4fe089c2dd98ded14bddb1b637022dc357f685",
       email: user.email,
       amount: book.price * 100,
       currency: "NGN",
-      ref: reference,
+      reference,
       metadata: { courseCode: book.code, uid: user.uid },
-      callback: async (response) => {
+      onSuccess: async (response) => {
         setError("");
         try {
           const currentUser = auth.currentUser;
@@ -225,8 +226,15 @@ export default function Home() {
           );
         }
       },
-      onClose: () => {},
-    }).openIframe();
+      onCancel: () => {},
+      onError: (paymentError) => {
+        console.error("Paystack checkout failed:", paymentError);
+        setError("We could not open the payment window. Please try again.");
+      },
+    }).catch((paymentError: unknown) => {
+      console.error("Paystack checkout failed:", paymentError);
+      setError("We could not open the payment window. Please try again.");
+    });
   }
 
   async function askBookQuestion(event: FormEvent<HTMLFormElement>, book: Book) {
