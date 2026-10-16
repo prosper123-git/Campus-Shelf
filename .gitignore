@@ -46,6 +46,10 @@ build/Release
 
 # Dependency directories
 node_modules/
+.next/
+out/
+*.tsbuildinfo
+public/pdfs/
 
 # Optional npm cache directory
 .npm

@@ -1,13 +1,19 @@
 {
   "hosting": {
-    "public": ".",
+    "public": "out",
+    "cleanUrls": true,
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**",
-      "campus_shelfApi/**",
-      "functions/**",
       "firebase-debug.log"
+    ],
+    "redirects": [
+      {
+        "source": "/admin.html",
+        "destination": "/admin",
+        "type": 301
+      }
     ]
   }
 }
